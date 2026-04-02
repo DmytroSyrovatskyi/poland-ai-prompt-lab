@@ -1,31 +1,35 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Подключаем официальную библиотеку Google с нашим ключом
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-
 export async function POST(request) {
+  // Достаем ключ прямо внутри функции, чтобы Vercel точно его увидел
+  const apiKey = process.env.API_KEY || process.env.NEXT_PUBLIC_API_KEY;
+  
+  if (!apiKey) {
+    console.error("Критическая ошибка: API_KEY не найден в переменных окружения!");
+    return Response.json({ error: "Błąd konfiguracji serwera (brak klucza API)." }, { status: 500 });
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+
   try {
     const body = await request.json();
     const { scenario, inputText, userPrompt, expertPrompt } = body;
 
     const contextText = inputText ? `\n\nDane wejściowe:\n${inputText}` : '';
 
-    // ИСправлено: используем самую новую модель Gemini 2.5 Flash!
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Используем gemini-1.5-flash — она самая стабильная и бесплатная
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Подготавливаем тексты для 3 запросов
     const userFullPrompt = `${userPrompt}${contextText}`;
     const expertFullPrompt = `${expertPrompt}${contextText}`;
-    const feedbackSystemPrompt = `Jesteś ekspertem od inżynierii promptów. Oceń prompt użytkownika w porównaniu do promptu eksperta. Daj 2-3 zdania konstruktywnego feedbacku po polsku, co użytkownik mógłby poprawić w swoim prompcie (np. dodać kontekst, określić format, ustalić ton). Bądź zachęcający i profesjonalny.\n\nScenariusz: ${scenario}\n\nPrompt użytkownika: ${userPrompt}\n\nPrompt eksperta: ${expertPrompt}\n\nNapisz krótki feedback dla użytkownika, wskazując, co ujął ekspert, a czego zabrakło użytkownikowi.`;
+    const feedbackSystemPrompt = `Jesteś ekspertem od inżynierii promptów. Oceń prompt użytkownika w porównaniu do promptu eksperta. Daj 2-3 zdania konstruktywnego feedbacku po polsku. Scenariusz: ${scenario}\n\nPrompt użytkownika: ${userPrompt}\n\nPrompt eksperta: ${expertPrompt}`;
 
-    // Отправляем все 3 запроса одновременно
     const [userResult, expertResult, feedbackResult] = await Promise.all([
       model.generateContent(userFullPrompt),
       model.generateContent(expertFullPrompt),
       model.generateContent(feedbackSystemPrompt)
     ]);
 
-    // Достаем текст из ответов и отправляем на страницу
     return Response.json({
       userResponse: userResult.response.text(),
       expertResponse: expertResult.response.text(),
@@ -34,8 +38,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error("Błąd API Google:", error);
+    // Если Google выдает ошибку (например, ограничение по региону), мы увидим это в логах Vercel
     return Response.json(
-      { error: "Nie udało się połączyć z AI. Sprawdź klucz API." }, 
+      { error: `Błąd AI: ${error.message || "Problem z połączeniem"}` }, 
       { status: 500 }
     );
   }
