@@ -1,12 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request) {
-  // Достаем ключ прямо внутри функции, чтобы Vercel точно его увидел
-  const apiKey = process.env.API_KEY || process.env.NEXT_PUBLIC_API_KEY;
+  const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    console.error("Критическая ошибка: API_KEY не найден в переменных окружения!");
-    return Response.json({ error: "Błąd konfiguracji serwera (brak klucza API)." }, { status: 500 });
+    return Response.json({ error: "Brak klucza API в настройках Vercel." }, { status: 500 });
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -17,12 +15,12 @@ export async function POST(request) {
 
     const contextText = inputText ? `\n\nDane wejściowe:\n${inputText}` : '';
 
-    // Используем gemini-1.5-flash — она самая стабильная и бесплатная
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ИСПОЛЬЗУЕМ АКТУАЛЬНУЮ МОДЕЛЬ 2026 ГОДА
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const userFullPrompt = `${userPrompt}${contextText}`;
     const expertFullPrompt = `${expertPrompt}${contextText}`;
-    const feedbackSystemPrompt = `Jesteś ekspertem od inżynierii promptów. Oceń prompt użytkownika w porównaniu do promptu eksperta. Daj 2-3 zdania konstruktywnego feedbacku po polsku. Scenariusz: ${scenario}\n\nPrompt użytkownika: ${userPrompt}\n\nPrompt eksperta: ${expertPrompt}`;
+    const feedbackSystemPrompt = `Jesteś ekspertem od inżynierii promptów. Oceń prompt użytkownika в сравнении с промптом эксперта. Daj 2-3 zdania feedbacku po polsku. Scenariusz: ${scenario}\n\nUser: ${userPrompt}\n\nExpert: ${expertPrompt}`;
 
     const [userResult, expertResult, feedbackResult] = await Promise.all([
       model.generateContent(userFullPrompt),
@@ -38,9 +36,8 @@ export async function POST(request) {
 
   } catch (error) {
     console.error("Błąd API Google:", error);
-    // Если Google выдает ошибку (например, ограничение по региону), мы увидим это в логах Vercel
     return Response.json(
-      { error: `Błąd AI: ${error.message || "Problem z połączeniem"}` }, 
+      { error: `Błąd AI: ${error.message}` }, 
       { status: 500 }
     );
   }
