@@ -11,26 +11,41 @@ export async function POST(request) {
     const { scenario, inputText, userPrompt, expertPrompt } = body;
     const contextText = inputText ? `\n\nDane wejściowe:\n${inputText}` : '';
 
-    // Используем 1.5-flash — у неё самые щедрые бесплатные лимиты
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Используем АКТУАЛЬНУЮ модель 2.0
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // ВАЖНО: Убираем Promise.all и делаем запросы ПО ОЧЕРЕДИ
-    // Это медленнее на 2 секунды, но зато БЕСПЛАТНО и без ошибок 429
-    
-    const userResult = await model.generateContent(`${userPrompt}${contextText}`);
-    const expertResult = await model.generateContent(`${expertPrompt}${contextText}`);
-    
-    const feedbackSystemPrompt = `Jesteś ekspertem od inżynierii promptów. Oceń prompt użytkownika w porównaniu do promptu eksperta. Daj 2-3 zdania feedbacku po polsku. Scenariusz: ${scenario}\n\nUser prompt: ${userPrompt}\n\nExpert prompt: ${expertPrompt}`;
-    const feedbackResult = await model.generateContent(feedbackSystemPrompt);
+    // ХИТРОСТЬ: Просим ИИ сделать всё за ОДИН раз, чтобы не превысить лимит запросов
+    const massivePrompt = `
+      Jesteś ekspertem od AI. Wykonaj trzy zadania na podstawie poniższych danych:
+      SCENARIUSZ: ${scenario}
+      DANE: ${contextText}
+      PROMPT UŻYTKOWNIKA: ${userPrompt}
+      PROMPT EKSPERTA: ${expertPrompt}
 
-    return Response.json({
-      userResponse: userResult.response.text(),
-      expertResponse: expertResult.response.text(),
-      feedback: feedbackResult.response.text(),
-    });
+      ZADANIA:
+      1. Wygeneruj odpowiedź na PROMPT UŻYTKOWNIKA.
+      2. Wygeneruj odpowiedź na PROMPT EKSPERTA.
+      3. Napisz 2-3 zdania feedbacku po polsku dla użytkownika.
+
+      ODPOWIEDZ WYŁĄCZNIE W FORMACIE JSON:
+      {
+        "userResponse": "tekst...",
+        "expertResponse": "tekst...",
+        "feedback": "tekst..."
+      }
+    `;
+
+    const result = await model.generateContent(massivePrompt);
+    const responseText = result.response.text();
+    
+    // Очищаем текст от возможных кавычек markdown (```json ... ```)
+    const cleanJson = responseText.replace(/```json|```/g, "").trim();
+    const finalData = JSON.parse(cleanJson);
+
+    return Response.json(finalData);
 
   } catch (error) {
     console.error("Błąd API Google:", error);
-    return Response.json({ error: `Błąd AI (429): Spróbuj ponownie za chwilę.` }, { status: 500 });
+    return Response.json({ error: "Błąd AI. Spróbuj za 60 sekund." }, { status: 500 });
   }
 }
