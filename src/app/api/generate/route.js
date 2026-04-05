@@ -9,43 +9,40 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const { scenario, inputText, userPrompt, expertPrompt } = body;
-    const contextText = inputText ? `\n\nDane wejściowe:\n${inputText}` : '';
+    const contextText = inputText ? `\n\nTekst źródłowy:\n${inputText}` : '';
 
-    // Используем АКТУАЛЬНУЮ модель 2.0
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // ХИТРОСТЬ: Просим ИИ сделать всё за ОДИН раз, чтобы не превысить лимит запросов
+    // Упаковываем всё в ОДИН запрос, чтобы лимиты не сходили с ума
     const massivePrompt = `
-      Jesteś ekspertem od AI. Wykonaj trzy zadania na podstawie poniższych danych:
+      Jesteś ekspertem prompt engineeringu. Przeanalizuj zadanie:
       SCENARIUSZ: ${scenario}
       DANE: ${contextText}
       PROMPT UŻYTKOWNIKA: ${userPrompt}
       PROMPT EKSPERTA: ${expertPrompt}
 
       ZADANIA:
-      1. Wygeneruj odpowiedź na PROMPT UŻYTKOWNIKA.
-      2. Wygeneruj odpowiedź na PROMPT EKSPERTA.
-      3. Napisz 2-3 zdania feedbacku po polsku dla użytkownika.
+      1. Wygeneruj odpowiedź na prompt użytkownika.
+      2. Wygeneruj odpowiedź na prompt eksperta.
+      3. Napisz 2-3 zdania feedbacku po polsku.
 
-      ODPOWIEDZ WYŁĄCZNIE W FORMACIE JSON:
+      WYNIK ODDAJ TYLKO JAKO CZYSTY JSON (bez markdown):
       {
-        "userResponse": "tekst...",
-        "expertResponse": "tekst...",
-        "feedback": "tekst..."
+        "userResponse": "tekst",
+        "expertResponse": "tekst",
+        "feedback": "tekst"
       }
     `;
 
     const result = await model.generateContent(massivePrompt);
     const responseText = result.response.text();
     
-    // Очищаем текст от возможных кавычек markdown (```json ... ```)
+    // Чистим JSON от возможных символов ```json ... ```
     const cleanJson = responseText.replace(/```json|```/g, "").trim();
-    const finalData = JSON.parse(cleanJson);
-
-    return Response.json(finalData);
+    return Response.json(JSON.parse(cleanJson));
 
   } catch (error) {
-    console.error("Błąd API Google:", error);
-    return Response.json({ error: "Błąd AI. Spróbuj za 60 sekund." }, { status: 500 });
+    console.error("ОШИБКА:", error);
+    return Response.json({ error: "Błąd AI. Spróbuj za minutę." }, { status: 500 });
   }
 }
