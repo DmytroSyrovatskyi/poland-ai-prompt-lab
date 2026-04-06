@@ -1,78 +1,53 @@
 [
   {
     "id": "task-1",
-    "level": 1,
-    "title": "Post w mediach społecznościowych",
-    "scenario": "Twoja organizacja organizuje akcję sprzątania lokalnego parku w najbliższą sobotę. Potrzebujesz krótkiego, angażującego posta na Facebooka, aby przyciągnąć wolontariuszy.",
-    "inputText": "",
-    "expertPrompt": "Napisz krótki, entuzjastyczny post na Facebooka (max 4 zdania) zachęcający do wzięcia udziału w sobotnim sprzątaniu Parku Miejskiego. Dodaj wezwanie do działania (Call to Action) na końcu i 2-3 odpowiednie emotikony.",
-    "tips": [
-      "Ekspert określił format i długość (max 4 zdania, post na FB), aby uniknąć ściany tekstu.",
-      "Wskazano konkretny ton (entuzjastyczny), co pomaga AI dopasować styl do mediów społecznościowych.",
-      "Poproszono o konkretne elementy: wezwanie do działania (CTA) i emotikony."
-    ]
+    "level": "Basics",
+    "title": "Post do mediów społecznościowych",
+    "scenario": "Twoja fundacja organizuje bieg charytatywny. Napisz krótki post na Facebooka, który zachęci wolontariuszy do pomocy.",
+    "expertPrompt": "Napisz post na Facebooka o biegu charytatywnym dla fundacji. Użyj entuzjastycznego tonu, dodaj 3 konkretne powody, dla których warto dołączyć, i zakończ wyraźnym wezwaniem do działania (CTA) z linkiem do zapisu. Użyj emotikon.",
+    "tips": "Dobry post powinien zawierać korzyści dla wolontariusza i jasne instrukcje, co ma zrobić dalej."
   },
   {
     "id": "task-2",
-    "level": 1,
-    "title": "Podsumowanie naboru wniosków",
-    "scenario": "Znalazłeś interesujący konkurs grantowy, ale opis jest bardzo długi. Musisz przedstawić go swojemu zespołowi w pigułce.",
-    "inputText": "Program 'Aktywni Obywatele' wspiera działania z zakresu ochrony praw człowieka i równego traktowania. Termin składania wniosków upływa 15 listopada 2026 r. Minimalna kwota dofinansowania to 10 000 EUR, a maksymalna to 50 000 EUR. Projekty muszą trwać od 6 do 18 miesięcy. Wymagany jest wkład własny na poziomie 10%.",
-    "expertPrompt": "Jesteś asystentem zarządu w organizacji pozarządowej. Przeczytaj poniższy tekst o konkursie grantowym i podsumuj go w 3 krótkich punktach (bullet points), skupiając się tylko na najważniejszych informacjach z punktu widzenia decyzji o starcie w konkursie. \n\nTekst: {input}",
-    "tips": [
-      "Ekspert nadał AI rolę ('Jesteś asystentem zarządu'), co od razu ustawia profesjonalny kontekst.",
-      "Precyzyjnie określono format wyjściowy (dokładnie 3 punkty).",
-      "Wskazano cel podsumowania (najważniejsze informacje do podjęcia decyzji)."
-    ]
+    "level": "Basics",
+    "title": "Podsumowanie naboru grantowego",
+    "scenario": "Masz opis nowego konkursu grantowego. Podsumuj go w 3 punktach dla zarządu swojej organizacji.",
+    "inputText": "Konkurs 'Cyfrowe NGO' oferuje do 50 000 zł na sprzęt i szkolenia. Termin składania wniosków upływa 15 maja. Wymagany wkład własny to 10%. Preferowane są projekty wspierające seniorów.",
+    "expertPrompt": "Podsumuj powyższy tekst o grancie 'Cyfrowe NGO'. Przedstaw w 3 punktach: maksymalną kwotę, termin i kluczowy warunek (seniorzy/wkład własny). Użyj profesjonalnego języka.",
+    "tips": "Skup się na konkretnych liczbach i datach – to najważniejsze informacje dla zarządu."
   },
   {
     "id": "task-3",
-    "level": 2,
-    "title": "Trudny e-mail do partnera",
-    "scenario": "Partner w Waszym wspólnym projekcie spóźnia się o tydzień z przesłaniem ważnego raportu finansowego. Musisz napisać do niego e-mail z przypomnieniem. Wiadomość musi być stanowcza, ale dyplomatyczna, aby nie zepsuć Waszych relacji.",
-    "inputText": "",
-    "expertPrompt": "Napisz profesjonalny i dyplomatyczny e-mail do partnera projektu, który spóźnia się o 7 dni z dostarczeniem raportu finansowego. Przypomnij o terminie, zapytaj, czy potrzebuje jakiejkolwiek pomocy, ale jasno podkreśl, że ten raport jest absolutnie niezbędny do rozliczenia całego projektu. Utrzymaj ton stanowczy, ale partnerski i wyrozumiały.",
-    "tips": [
-      "Zamiast po prostu napisać 'napisz maila o zaległym raporcie', ekspert podał dokładny cel wiadomości i nakreślił pożądany ton.",
-      "Zasugerowano konkretne rozwiązania do uwzględnienia w tekście (np. zapytanie o potrzebę pomocy), co buduje relację i sprawia, że mail nie brzmi jak zwykły atak."
-    ]
+    "level": "Intermediate",
+    "title": "E-mail do partnera projektu",
+    "scenario": "Partner projektu spóźnia się z przesłaniem raportu o tydzień. Napisz e-mail: stanowczy, ale dyplomatyczny.",
+    "expertPrompt": "Napisz profesjonalny e-mail do partnera projektu w sprawie zaległego raportu. Wyraź zrozumienie dla ich pracy, ale podkreśl, że opóźnienie blokuje rozliczenie całego projektu. Poproś o informację o nowym terminie do jutra.",
+    "tips": "Technika 'kanapki' (docenienie - problem - rozwiązanie) świetnie sprawdza się w dyplomacji NGO."
   },
   {
     "id": "task-4",
-    "level": 2,
-    "title": "Analiza surowych danych z ankiet",
-    "scenario": "Zebrałeś odpowiedzi od 50 uczestników warsztatów w formie surowych, chaotycznych danych. Potrzebujesz wyciągnąć z nich główne wnioski do oficjalnego raportu dla sponsora.",
-    "inputText": "Q1 (Ocena ogólna): 4.8/5 średnia. Q2 (Co się podobało): 'świetny prowadzący', 'praktyczne przykłady', 'dobry catering', 'wiedza trenera'. Q3 (Co poprawić): 'za krótko', 'zimno na sali', 'mało czasu na pytania pod koniec', 'zepsuty projektor'.",
-    "expertPrompt": "Jesteś analitykiem danych w NGO. Przeanalizuj poniższe surowe dane z ankiety ewaluacyjnej warsztatów. Zidentyfikuj i opisz 3 główne mocne strony oraz 2 kluczowe obszary do poprawy. Przedstaw wyniki w formie profesjonalnego, zwięzłego podsumowania, gotowego do wklejenia do raportu dla zarządu i sponsora. Używaj języka formalnego.\n\nDane: {input}",
-    "tips": [
-      "Nadanie roli analityka wymusza na AI użycie obiektywnego i profesjonalnego języka.",
-      "Zdefiniowano konkretną liczbę mocnych stron i obszarów do poprawy, aby uniknąć rozwlekłego tekstu ('lania wody').",
-      "Wskazano odbiorcę końcowego (zarząd i sponsor), co pomaga modelowi dostosować styl wypowiedzi."
-    ]
+    "level": "Intermediate",
+    "title": "Analiza ankiet od uczestników",
+    "scenario": "Masz wyniki ankiety od 50 osób po warsztatach. Wyciągnij z nich główne wnioski.",
+    "inputText": "Uczestnik 1-10: Super warsztaty, ale za mało kawy. Uczestnik 11-30: Bardzo praktyczne, chcemy więcej Excela. Uczestnik 31-50: Prowadzący mówił za szybko, ale materiały są świetne.",
+    "expertPrompt": "Przeanalizuj surowe dane z ankiet. Wyodrębnij 3 główne mocne strony oraz 2 obszary do poprawy (logistyka, tempo). Zaproponuj jedno konkretne działanie naprawcze na kolejne warsztaty.",
+    "tips": "Grupowanie podobnych odpowiedzi pomaga uniknąć szumu informacyjnego."
   },
   {
     "id": "task-5",
-    "level": 3,
-    "title": "Koncepcja projektu (Erasmus+)",
-    "scenario": "Chcesz złożyć wniosek o mały grant Erasmus+ (KA210) na projekt dotyczący umiejętności cyfrowych dla seniorów. Musisz przygotować zarys koncepcji (Concept Note), który będzie spójny, logiczny i przekonujący.",
-    "inputText": "",
-    "expertPrompt": "Zachowuj się jak doświadczony koordynator i ewaluator projektów unijnych. Stwórz kompleksowy zarys koncepcji (Concept Note) dla projektu Erasmus+ KA210. Temat: Rozwój umiejętności cyfrowych wśród osób powyżej 65 roku życia. Twoja odpowiedź musi zawierać dokładnie następujące sekcje:\n1. Chwytliwy tytuł projektu.\n2. Główne cele (napisane zgodnie z metodologią SMART).\n3. Opis grupy docelowej.\n4. Główne działania (minimum 3 konkrety).\n5. Oczekiwane rezultaty (tzw. rezultaty twarde i miękkie).\nUżywaj profesjonalnego słownictwa projektowego (np. 'wartość dodana', 'inkluzja społeczna', 'upowszechnianie').",
-    "tips": [
-      "Zadanie jest wieloetapowe, więc ekspert wyraźnie wypunktował wymaganą strukturę odpowiedzi (punkty 1 do 5).",
-      "Wymuszono użycie konkretnych narzędzi (metodologia SMART) oraz branżowego słownictwa ('inkluzja', 'rezultaty twarde'), aby wynik brzmiał profesjonalnie."
-    ]
+    "level": "Advanced",
+    "title": "Koncepcja projektu Erasmus+",
+    "scenario": "Stwórz zarys projektu Erasmus+ KA210 dotyczący kompetencji cyfrowych seniorów.",
+    "expertPrompt": "Stwórz koncepcję projektu Erasmus+ KA210: 'Seniorzy w Sieci'. Opracuj: Tytuł, 2 Cele główne, Grupę docelową, 3 Główne działania (np. warsztaty, e-book) oraz Oczekiwane rezultaty. Styl wniosku o grant.",
+    "tips": "W projektach unijnych kluczowa jest spójność między celami a działaniami."
   },
   {
     "id": "task-6",
-    "level": 3,
-    "title": "Ekstrakcja danych (bez halucynacji)",
-    "scenario": "Otrzymałeś fragment raportu ewaluacyjnego. Musisz wyciągnąć z niego konkretne informacje dla zarządu, ale absolutnie najważniejsze jest to, aby AI niczego nie zmyśliło (musisz zapobiec tzw. halucynacjom modelu).",
-    "inputText": "Projekt 'Zielona Szkoła' osiągnął większość założonych celów. W zajęciach wzięło udział 120 dzieci (planowano 100). Najwyżej oceniono warsztaty z recyklingu (średnia ocena 4.9). Niestety, z powodu ulewnego deszczu nie odbyła się planowana wycieczka do lasu, co spotkało się z dużym rozczarowaniem uczestników. Budżet projektu został zrealizowany w 95%. Rekomenduje się na przyszłość rezerwowanie terminów zapasowych dla wszelkich zajęć plenerowych.",
-    "expertPrompt": "Przeanalizuj poniższy tekst raportu ewaluacyjnego. Wyodrębnij z niego wyłącznie następujące informacje: \nA) Co dokładnie poszło dobrze? \nB) Co wymaga poprawy / co się nie udało? \nC) Konkretne rekomendacje na przyszłość. \n\nZASADA ABSOLUTNA: Opieraj się TYLKO i WYŁĄCZNIE na dostarczonym tekście. Pod żadnym pozorem nie dodawaj i nie wymyślaj dodatkowych informacji. Jeśli w tekście brakuje informacji na dany temat, napisz wyraźnie 'Brak danych w tekście'.\n\nTekst: {input}",
-    "tips": [
-      "Ekspert zastosował ostrą klauzulę ograniczającą ('ZASADA ABSOLUTNA: Opieraj się TYLKO...'), co drastycznie zmniejsza ryzyko zmyślania przez AI.",
-      "Dano modelowi wyraźne 'wyjście awaryjne' ('Brak danych w tekście'), gdyby informacji naprawdę brakowało.",
-      "Zastosowano jasny podział na kategorie (A, B, C), aby wymusić ustrukturyzowaną odpowiedź."
-    ]
+    "level": "Advanced",
+    "title": "Ekstrakcja z raportu ewaluacyjnego",
+    "scenario": "Z 3-stronicowego raportu musisz wyciągnąć kluczowe rekomendacje, dbając by AI nie zmyślało.",
+    "inputText": "Raport wskazuje na sukces w rekrutacji (120% planu), ale niską frekwencję na webinarach (40%). Budżet został przekroczony o 5% w dziale promocji. Rekomenduje się zmianę kanałów komunikacji na TikTok.",
+    "expertPrompt": "Na podstawie dostarczonego fragmentu raportu wypisz: 1. Największy sukces. 2. Największe wyzwanie. 3. Konkretną rekomendację. Odpowiadaj wyłącznie na podstawie tekstu, jeśli czegoś nie ma – napisz 'brak danych'.",
+    "tips": "Instrukcja 'odpowiadaj wyłącznie na podstawie tekstu' zapobiega halucynacjom AI."
   }
 ]

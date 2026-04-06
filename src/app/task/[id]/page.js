@@ -1,232 +1,198 @@
-'use client';
-
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
+"use client";
+import { useState, useEffect, use } from 'react'; 
+import tasks from '@/app/data/tasks.json';
 import Link from 'next/link';
-import tasksData from '../../data/tasks.json';
 
-export default function TaskPage() {
-  const params = useParams();
-  const [userPrompt, setUserPrompt] = useState('');
+export default function TaskPage({ params: paramsPromise }) {
+  // Unwrap params using the use() hook for Next.js 16 compatibility
+  const params = use(paramsPromise);
+  const task = tasks.find(t => t.id === params.id);
   
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState(null);
-  const [error, setError] = useState(null);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const task = params?.id ? tasksData.find(t => t.id === params.id) : null;
-
-  if (!task) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">Nie znaleziono zadania.</p>
-          <Link href="/" className="text-blue-600 hover:underline">
-            ← Wróć do strony głównej
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // Save progress to Local Storage
+  useEffect(() => {
+    if (result && task) {
+      const completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+      if (!completed.includes(task.id)) {
+        localStorage.setItem('completedTasks', JSON.stringify([...completed, task.id]));
+      }
+    }
+  }, [result, task]);
 
   const handleSubmit = async () => {
-    if (!userPrompt.trim()) {
-      alert('Wpisz swój prompt przed wysłaniem!');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
+    setLoading(true);
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scenario: task.scenario,
-          inputText: task.inputText || '',
+          inputText: task.inputText || "",
           userPrompt: userPrompt,
-          expertPrompt: task.expertPrompt,
+          expertPrompt: task.expertPrompt
         }),
       });
-
-      if (!response.ok) {
-        throw new Error('Wystąpił błąd podczas łączenia z AI.');
-      }
-
-      const data = await response.json();
       
-      const savedProgress = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-      if (!savedProgress.includes(task.id)) {
-        savedProgress.push(task.id);
-        localStorage.setItem('completedTasks', JSON.stringify(savedProgress));
-      }
-
-      setResults(data);
-    } catch (err) {
-      console.error(err);
-      setError('Błąd połączenia. Sprawdź swoje połączenie z internetem lub klucz API.');
+      if (!response.ok) throw new Error('API Error');
+      
+      const data = await response.json();
+      setResult(data);
+    } catch (e) {
+      alert("Błąd połączenia. Upewnij się, że masz połączenie z internetem.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleRetry = () => {
-    setResults(null);
-    setUserPrompt('');
-  };
+  if (!task) return <div className="p-8 text-center text-slate-500 min-h-screen bg-slate-100">Zadanie nie znalezione.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      <header className="bg-white border-b shadow-sm mb-8">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center">
-          <Link href="/" className="text-blue-600 hover:underline mr-4 flex items-center font-medium">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Wróć do listy
-          </Link>
-          <h1 className="text-xl font-bold text-gray-800 border-l border-gray-300 pl-4">Prompt Lab</h1>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="mb-4">
-             <span className={`text-xs font-bold uppercase px-2 py-1 rounded inline-block mb-3 ${
-                task.level === 1 ? 'bg-green-100 text-green-700' : 
-                task.level === 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
-              }`}>
-                Poziom {task.level}
+    <main className="min-h-screen bg-slate-100 font-sans text-slate-900 py-8 selection:bg-indigo-200 selection:text-indigo-900">
+      <div className="max-w-6xl mx-auto p-4 md:px-8">
+        
+        {/* Navigation */}
+        <Link 
+          href="/" 
+          className="inline-flex items-center px-5 py-2.5 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-full border-2 border-slate-300 shadow-sm transition-all text-sm font-bold mb-8 group"
+        >
+          <svg className="w-4 h-4 mr-2 text-slate-500 group-hover:text-slate-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Powrót do listy
+        </Link>
+        
+        {/* Task Details Card */}
+        <div className="bg-white rounded-2xl shadow-md border-2 border-slate-200 p-6 md:p-10 mb-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
+          <span className="text-xs font-bold px-3 py-1 bg-indigo-50 text-indigo-800 rounded-full mb-4 inline-block border border-indigo-200 tracking-wide">
+            Poziom: {task.level}
+          </span>
+          <h1 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">{task.title}</h1>
+          <p className="text-slate-700 text-lg leading-relaxed mb-6 font-medium">{task.scenario}</p>
+          
+          {task.inputText && (
+            <div className="bg-slate-50 p-5 rounded-xl border-2 border-slate-200 text-sm text-slate-800 relative mt-8 shadow-inner">
+              <span className="absolute -top-3 left-4 bg-slate-200 px-3 py-0.5 rounded-full text-[10px] font-bold text-slate-700 uppercase tracking-widest border border-slate-300">
+                Dane wejściowe do przetworzenia
               </span>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">{task.title}</h2>
-            
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 text-gray-800 mb-4 rounded-r">
-              <p className="font-semibold mb-1 text-blue-900">Scenariusz (Twoja sytuacja):</p>
-              <p>{task.scenario}</p>
-            </div>
-            
-            {task.inputText && (
-              <div className="bg-gray-100 p-4 text-gray-700 rounded border border-gray-200">
-                <p className="font-semibold text-sm text-gray-600 mb-2">Dane wejściowe:</p>
-                <p className="whitespace-pre-wrap font-serif text-sm bg-white p-3 border border-gray-200 rounded">{task.inputText}</p>
-              </div>
-            )}
-          </div>
-
-          {!results && !isLoading && (
-            <div className="border-t border-gray-100 pt-6">
-              <label className="block text-gray-800 font-bold mb-2">
-                Napisz swój prompt do AI:
-              </label>
-              <p className="text-gray-500 text-sm mb-3">
-                Jakiej instrukcji użyjesz, aby AI pomogło Ci w tej sytuacji?
-              </p>
-              <textarea 
-                className="w-full border border-gray-300 rounded-lg p-4 h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4 shadow-sm"
-                placeholder="Np. Jesteś ekspertem ds. komunikacji. Napisz..."
-                value={userPrompt}
-                onChange={(e) => setUserPrompt(e.target.value)}
-              />
-              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-              <button 
-                onClick={handleSubmit}
-                className="bg-blue-600 text-white py-3 px-6 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-sm"
-              >
-                Wyślij do AI
-              </button>
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="border-t border-gray-100 pt-12 pb-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-600 font-medium animate-pulse">Analizowanie promptu i generowanie odpowiedzi AI...</p>
+              <div className="whitespace-pre-wrap font-mono text-xs text-slate-700 mt-1 font-medium">{task.inputText}</div>
             </div>
           )}
         </div>
 
-        {results && !isLoading && (
-          <div className="animate-fade-in-up">
-            <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-6 mb-6 shadow-sm">
-              <h3 className="text-lg font-bold text-indigo-900 mb-2 flex items-center">
-                <span className="text-2xl mr-2">✨</span> Feedback od AI
+        {!result ? (
+          // Input Section
+          <div className="space-y-6 animate-in fade-in duration-300">
+            
+            {/* Instruction Block */}
+            <div className="bg-indigo-50/80 border-2 border-indigo-200 rounded-2xl p-6 flex gap-4 items-start shadow-sm">
+              <div className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 mt-0.5 font-bold shadow-sm">
+                ?
+              </div>
+              <div>
+                <h4 className="font-bold text-indigo-900 mb-1 text-lg">Co masz zrobić?</h4>
+                <p className="text-indigo-900/80 text-sm leading-relaxed mb-3 font-medium">
+                  Twoim zadaniem jest napisanie <strong>polecenia (promptu)</strong> dla sztucznej inteligencji, aby pomogła Ci rozwiązać problem ze scenariusza powyżej.
+                </p>
+                <div className="bg-white p-3.5 rounded-xl border border-indigo-200 text-sm text-indigo-900 font-medium shadow-sm">
+                  <span className="font-bold text-indigo-500 uppercase tracking-wider text-[10px] block mb-1">Przykładowy początek promptu:</span>
+                  &quot;Zachowuj się jak ekspert ds. komunikacji w NGO. Napisz dla mnie...&quot;
+                </div>
+              </div>
+            </div>
+
+            <textarea
+              className="w-full h-56 p-6 border-2 border-slate-300 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all resize-none text-slate-800 text-lg shadow-inner bg-white placeholder-slate-400 font-medium"
+              placeholder="Wpisz swoją instrukcję dla AI tutaj..."
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+            />
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !userPrompt.trim()}
+              className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 flex justify-center items-center"
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  AI generuje odpowiedź i feedback...
+                </span>
+              ) : "Wyślij do AI i porównaj"}
+            </button>
+          </div>
+        ) : (
+          // Results Section
+          <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500">
+            
+            {/* Section 1: Prompts Comparison */}
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 mb-5 flex items-center">
+                <span className="bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm shadow-md">1</span> 
+                Porównanie promptów
+              </h2>
+              <div className="grid md:grid-cols-2 gap-5">
+                <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b-2 border-slate-100 pb-2">Twój prompt</h3>
+                  <p className="text-slate-800 leading-relaxed font-medium">{userPrompt}</p>
+                </div>
+                <div className="bg-indigo-50/50 p-6 rounded-2xl border-2 border-indigo-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-bl-lg uppercase tracking-wider shadow-sm">Wzór eksperta</div>
+                  <h3 className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-3 border-b-2 border-indigo-100 pb-2">Prompt eksperta</h3>
+                  <p className="text-indigo-900 font-bold leading-relaxed">{task.expertPrompt}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: AI Results Comparison */}
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 mb-5 flex items-center mt-12">
+                <span className="bg-slate-800 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm shadow-md">2</span> 
+                Porównanie wyników AI
+              </h2>
+              <div className="grid md:grid-cols-2 gap-5">
+                <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 border-b-2 border-slate-100 pb-3">Wynik dla Twojego promptu</h3>
+                  <div className="whitespace-pre-wrap text-slate-700 text-sm leading-relaxed font-medium">{result.userResponse}</div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border-2 border-indigo-200 shadow-md">
+                  <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-4 border-b-2 border-indigo-50 pb-3 flex items-center">
+                    <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Wynik dla promptu eksperta
+                  </h3>
+                  <div className="whitespace-pre-wrap text-slate-900 text-sm leading-relaxed font-medium">{result.expertResponse}</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Section 3: AI Feedback */}
+            <div className="bg-linear-to-br from-amber-50 to-orange-100/50 p-6 md:p-8 rounded-3xl border-2 border-amber-200 shadow-sm mt-12">
+              <h3 className="font-bold text-amber-900 text-xl mb-4 flex items-center">
+                <span className="text-2xl mr-3 bg-white p-2 rounded-xl shadow-sm border border-amber-100">💡</span> AI Feedback
               </h3>
-              <p className="text-indigo-800 whitespace-pre-wrap">{results.feedback}</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                  <h3 className="font-bold text-gray-800">Twój wynik</h3>
-                </div>
-                {/* Использован класс grow вместо flex-grow */}
-                <div className="p-6 grow flex flex-col">
-                  <div className="mb-6">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Twój prompt:</p>
-                    {/* Кавычки заменены на &quot; */}
-                    <div className="bg-gray-50 p-4 rounded text-gray-700 italic border border-gray-100">
-                      &quot;{userPrompt}&quot;
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Odpowiedź AI:</p>
-                    <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
-                      {results.userResponse}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden flex flex-col relative">
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                  Wzór
-                </div>
-                <div className="bg-blue-100/50 px-6 py-4 border-b border-blue-200">
-                  <h3 className="font-bold text-blue-900">Wersja eksperta</h3>
-                </div>
-                {/* Использован класс grow вместо flex-grow */}
-                <div className="p-6 grow flex flex-col">
-                  <div className="mb-6">
-                    <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Prompt eksperta:</p>
-                    {/* Кавычки заменены на &quot; */}
-                    <div className="bg-white p-4 rounded text-blue-900 italic border border-blue-100">
-                      &quot;{task.expertPrompt}&quot;
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Odpowiedź AI:</p>
-                    <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
-                      {results.expertResponse}
-                    </div>
-                  </div>
-                </div>
+              <p className="text-amber-900 text-lg leading-relaxed mb-6 bg-white/80 p-5 rounded-2xl border border-amber-200 shadow-sm font-medium">{result.feedback}</p>
+              
+              <div className="flex items-start bg-white p-5 rounded-2xl border-2 border-amber-200 shadow-sm">
+                <span className="text-amber-700 font-extrabold mr-3 uppercase tracking-wider text-xs mt-1 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-md">Wskazówka</span>
+                <p className="text-sm font-bold text-amber-900 leading-relaxed">{task.tips}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-              <h3 className="font-bold text-gray-800 mb-4">💡 Dlaczego prompt eksperta zadziałał dobrze?</h3>
-              <ul className="space-y-3">
-                {task.tips.map((tip, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-0.5">✓</span>
-                    <span className="text-gray-700">{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="text-center mb-12">
-              <button 
-                onClick={handleRetry}
-                className="bg-white border-2 border-gray-300 text-gray-700 font-bold py-3 px-8 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
-              >
-                Spróbuj jeszcze raz
-              </button>
-            </div>
-
+            {/* Reset Button */}
+            <button 
+              onClick={() => {
+                setResult(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }} 
+              className="w-full mt-10 py-5 text-slate-700 hover:text-indigo-700 font-bold tracking-wide transition-all border-2 border-slate-300 rounded-2xl hover:border-indigo-400 hover:bg-indigo-50 bg-white shadow-sm text-lg"
+            >
+              Edytuj swój prompt i spróbuj ponownie
+            </button>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
