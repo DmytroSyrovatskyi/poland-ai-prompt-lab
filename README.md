@@ -1,39 +1,34 @@
-# Prompt Lab — PolandAI Training Platform
+# PolandAI Prompt Lab
 
-An interactive web-based training tool designed for Polish NGO staff to practice and master AI prompting through realistic, hands-on scenarios.
+An interactive web-based training tool designed for Polish NGO staff to practice and improve their AI prompting skills through realistic, day-to-day scenarios. 
 
-## 🚀 Stack Choice & Rationale
+## 🚀 Deployed Application
+**Live Demo:** [Insert Your Vercel Link Here]
 
-- **Framework:** [Next.js](https://nextjs.org/) (React) — Chosen for its seamless routing and ability to handle API calls securely on the server side (protecting API keys).
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) — Allows for a "Mobile-First" approach, ensuring NGO workers can use the tool on their phones during workshops.
-- **AI Engine:** [Google Gemini 2.5 Flash](https://aistudio.google.com/) — Selected for its exceptional performance in the Polish language and high-speed response times, essential for live training environments.
-- **State Management:** Local Storage — Used for progress tracking to keep the app lightweight and eliminate the need for a complex login system.
+## 🛠️ Stack Choices & Architecture
 
-## 📂 Task Library Management
+* **Framework:** Next.js 16 (App Router) & React. Chosen for fast rendering, robust API route handling, and seamless deployment.
+* **Styling & UX:** Tailwind CSS. The app uses a mobile-first "Card UI" design. Tasks are grouped into logical learning modules (Basics, Intermediate, Advanced) with instruction blocks and high-contrast elements to ensure maximum accessibility for non-technical users.
+* **AI API:** Google Gemini API (`gemini-2.5-flash-lite`). 
+  * *Why this model?* It handles the Polish language exceptionally well and is highly cost-effective. This ensures that when 20–30 workshop participants click "Submit" simultaneously, the API can handle the high throughput efficiently and economically without hitting severe rate limits.
+* **State Management:** Browser `localStorage`. Fulfills the requirement for session progress tracking (visual checkmarks on the dashboard) without the friction of a login/auth system.
 
-The application is designed for non-developers. To add, edit, or remove training scenarios:
-1. Open `src/app/data/tasks.json`.
-2. Follow the existing JSON structure.
-3. You can define:
-   - **Scenario description** (Context for the user).
-   - **Input text** (Source data to process).
-   - **Expert prompt** (The "gold standard" for comparison).
-   - **Tips** (Educational takeaways shown after submission).
+## 🧠 Prompt Engineering Logic
 
-No code changes are required to update the curriculum.
+To minimize API costs and reduce the risk of `429 Too Many Requests` errors during live workshops, the application uses a **Single-Turn Prompt Optimization** strategy. Instead of making three separate API calls (one for the user prompt, one for the expert prompt, and one for the feedback), the backend merges them into a single, complex system prompt. This instructs the AI to return all three outputs simultaneously in a clean, parsable JSON format.
 
-## 🔮 Phase 2 Roadmap
+## 📝 How to Add New Tasks (Extensibility)
 
-If this project moves to the next phase, I would implement:
-1. **Interactive Prompt Scoring:** An AI-driven "Quality Meter" (0-100%) to give users a quantitative sense of their progress.
-2. **Category Tracks:** Specific learning paths for Fundraising, Communication, and Project Management.
-3. **Leaderboards:** Optional gamification for workshops where teams can see who crafted the most efficient prompt.
-4. **Export Results:** Ability to download a PDF "Cheat Sheet" with the user's best prompts and AI feedback for future office use.
+The task library is completely decoupled from the application logic. A non-developer can easily add, edit, or remove tasks by modifying the `src/app/data/tasks.json` file.
 
-## 🛠️ How to Run Locally
-
-1. Clone the repository.
-2. Install dependencies: `npm install`.
-3. Create a `.env.local` file and add your Google AI Key: `API_KEY=your_key_here`.
-4. Run the development server: `npm run dev`.
-5. Open [http://localhost:3000](http://localhost:3000).
+**Structure of a Task:**
+```json
+{
+  "id": "task-7",
+  "level": "Intermediate",
+  "title": "Tytuł zadania",
+  "scenario": "Opis sytuacji dla użytkownika.",
+  "inputText": "Opcjonalny tekst źródłowy. Usuń tę linijkę, jeśli niepotrzebna.",
+  "expertPrompt": "Wzór idealnego promptu.",
+  "tips": "Krótka wskazówka, dlaczego prompt eksperta zadziałał lepiej."
+}
