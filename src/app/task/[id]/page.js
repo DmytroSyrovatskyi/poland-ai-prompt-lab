@@ -84,26 +84,48 @@ export default function TaskPage({ params: paramsPromise }) {
         {!result ? (
           // Input Section
           <div className="space-y-6 animate-in fade-in duration-300">
+            
+            {/* 1. Improved Instruction Block */}
             <div className="bg-indigo-50/80 border-2 border-indigo-200 rounded-2xl p-6 flex gap-4 items-start shadow-sm">
               <div className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 mt-0.5 font-bold shadow-sm">?</div>
               <div>
                 <h4 className="font-bold text-indigo-900 mb-1 text-lg">Co masz zrobić?</h4>
-                <p className="text-indigo-900/80 text-sm leading-relaxed mb-3 font-medium">
-                  Twoim zadaniem jest napisanie <strong>polecenia (promptu)</strong> dla sztucznej inteligencji, aby pomogła Ci rozwiązać problem ze scenariusza powyżej.
+                <p className="text-indigo-900/80 text-sm leading-relaxed font-medium">
+                  Twoim zadaniem jest napisanie <strong>instrukcji dla AI (tzw. promptu)</strong>, która powie jej dokładnie, co ma zrobić ze scenariuszem powyżej.
+                  <br/>
+                  <span className="inline-block mt-2 font-bold text-indigo-700 bg-indigo-100/60 px-2.5 py-1 rounded-md border border-indigo-200">
+                    Nie piszesz odpowiedzi — piszesz instrukcję dla AI.
+                  </span>
                 </p>
-                <div className="bg-white p-3.5 rounded-xl border border-indigo-200 text-sm text-indigo-900 font-medium shadow-sm">
-                  <span className="font-bold text-indigo-500 uppercase tracking-wider text-[10px] block mb-1">Przykładowy początek promptu:</span>
-                  &quot;Zachowuj się jak ekspert ds. komunikacji w NGO. Napisz dla mnie...&quot;
-                </div>
               </div>
             </div>
 
-            <textarea
-              className="w-full h-56 p-6 border-2 border-slate-300 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all resize-none text-slate-800 text-lg shadow-inner bg-white placeholder-slate-400 font-medium"
-              placeholder="Wpisz swoją instrukcję dla AI tutaj..."
-              value={userPrompt}
-              onChange={(e) => setUserPrompt(e.target.value)}
-            />
+            {/* 2. Structured Prompt Formula Tip */}
+            <div className="px-2 md:px-4">
+              <h5 className="font-bold text-slate-700 text-sm flex items-center mb-2.5">
+                <span className="mr-2 text-lg">💡</span> Wskazówka: Dobry prompt zawiera:
+              </h5>
+              <ul className="text-sm text-slate-600 font-medium space-y-1.5 ml-8 list-disc marker:text-indigo-400">
+                <li><strong className="text-slate-800">rolę AI</strong> (kim ma być?)</li>
+                <li><strong className="text-slate-800">cel</strong> (co ma zrobić?)</li>
+                <li><strong className="text-slate-800">kontekst</strong> (dla kogo / dlaczego?)</li>
+                <li><strong className="text-slate-800">format odpowiedzi</strong> (np. lista, e-mail, punkty)</li>
+              </ul>
+            </div>
+
+            {/* 3 & 4. Clear Label and Better Placeholder */}
+            <div className="pt-2">
+              <label className="block text-slate-900 font-extrabold text-lg mb-3 ml-2">
+                ✍️ Napisz prompt, który przekażesz AI:
+              </label>
+              <textarea
+                className="w-full h-56 p-6 border-2 border-slate-300 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all resize-none text-slate-800 text-lg shadow-inner bg-white placeholder-slate-400 font-medium leading-relaxed"
+                placeholder={`Np.:\n"Zachowuj się jak specjalista ds. komunikacji NGO.\nNapisz post na Facebooka o biegu charytatywnym.\nUżyj entuzjastycznego tonu, podaj 3 powody udziału\ni zakończ wezwaniem do działania."`}
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
+              />
+            </div>
+            
             <button
               onClick={handleSubmit}
               disabled={loading || !userPrompt.trim()}
@@ -114,7 +136,7 @@ export default function TaskPage({ params: paramsPromise }) {
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                   AI generuje odpowiedź i analizuje Twój prompt...
                 </span>
-              ) : "Wyślij do AI i porównaj"}
+              ) : "Zobacz wynik i porównaj z ekspertem"}
             </button>
           </div>
         ) : (
