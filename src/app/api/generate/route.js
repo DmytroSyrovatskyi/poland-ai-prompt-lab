@@ -5,6 +5,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * Features an advanced, top-tier prompt structure to act as an expert AI Trainer.
  */
 export async function POST(request) {
+  // The API key must be set in the environment for secure server-side calls.
+
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
@@ -18,6 +20,7 @@ export async function POST(request) {
     const { scenario, inputText, userPrompt, expertPrompt } = body;
     const contextText = inputText ? `\nINPUT TEXT: ${inputText}` : '';
 
+    // Choose the Gemini model to generate both responses and feedback.
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     // 🚀 TOP-TIER AI TRAINER PROMPT 🚀
@@ -62,7 +65,7 @@ export async function POST(request) {
     const result = await model.generateContent(massivePrompt);
     const responseText = result.response.text();
     
-    // Clean markdown if AI adds it
+    // Remove markdown fences if the model outputs JSON inside code blocks.
     const cleanJson = responseText.replace(/```json|```/g, "").trim();
     return Response.json(JSON.parse(cleanJson));
 

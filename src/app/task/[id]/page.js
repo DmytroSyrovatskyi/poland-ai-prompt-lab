@@ -3,14 +3,19 @@ import { useState, useEffect, use } from 'react';
 import tasks from '@/app/data/tasks.json';
 import Link from 'next/link';
 
+// Task detail page lets the user write a prompt, send it to the AI, and compare output with expert guidance.
 export default function TaskPage({ params: paramsPromise }) {
+  // Route params are passed as a promise in the App Router; use() unwraps them on the client.
   const params = use(paramsPromise);
   const task = tasks.find(t => t.id === params.id);
   
+  // Controlled form state and request status for prompt authoring.
   const [userPrompt, setUserPrompt] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Persist completed task IDs in localStorage after a successful AI generation.
+  // This enables the home page to show progress across sessions.
   useEffect(() => {
     if (result && task) {
       const completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
@@ -20,6 +25,7 @@ export default function TaskPage({ params: paramsPromise }) {
     }
   }, [result, task]);
 
+  // Submit the authored prompt to the backend API and save the AI result.
   const handleSubmit = async () => {
     setLoading(true);
     try {

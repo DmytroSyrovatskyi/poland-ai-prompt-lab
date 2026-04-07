@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import tasks from '@/app/data/tasks.json';
 
+// Home page renders the task launcher, progress badge and grouped task cards.
 export default function Home() {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Read progress only on the client side to avoid hydration mismatch
+  // Load completed task IDs from localStorage only after the component mounts.
+  // This prevents differences between server and client render output.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
@@ -15,7 +17,8 @@ export default function Home() {
     setCompletedTasks(saved);
   }, []);
 
-  // Define course modules based on difficulty levels
+  // Define course modules based on difficulty levels.
+  // These groups are used to render sections for Basics, Intermediate and Advanced tasks.
   const taskGroups = [
     {
       level: 'Basics',
@@ -118,6 +121,7 @@ export default function Home() {
                 {/* Task Cards Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {groupTasks.map((task) => {
+                    // Mark each task as completed only after hydration to avoid mismatch.
                     const isCompleted = isMounted && completedTasks.includes(task.id);
                     
                     return (
