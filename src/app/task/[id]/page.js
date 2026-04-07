@@ -4,7 +4,6 @@ import tasks from '@/app/data/tasks.json';
 import Link from 'next/link';
 
 export default function TaskPage({ params: paramsPromise }) {
-  // Unwrap params using the use() hook for Next.js 16 compatibility
   const params = use(paramsPromise);
   const task = tasks.find(t => t.id === params.id);
   
@@ -12,7 +11,6 @@ export default function TaskPage({ params: paramsPromise }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Save progress to Local Storage
   useEffect(() => {
     if (result && task) {
       const completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
@@ -86,12 +84,8 @@ export default function TaskPage({ params: paramsPromise }) {
         {!result ? (
           // Input Section
           <div className="space-y-6 animate-in fade-in duration-300">
-            
-            {/* Instruction Block */}
             <div className="bg-indigo-50/80 border-2 border-indigo-200 rounded-2xl p-6 flex gap-4 items-start shadow-sm">
-              <div className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 mt-0.5 font-bold shadow-sm">
-                ?
-              </div>
+              <div className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 mt-0.5 font-bold shadow-sm">?</div>
               <div>
                 <h4 className="font-bold text-indigo-900 mb-1 text-lg">Co masz zrobić?</h4>
                 <p className="text-indigo-900/80 text-sm leading-relaxed mb-3 font-medium">
@@ -118,7 +112,7 @@ export default function TaskPage({ params: paramsPromise }) {
               {loading ? (
                 <span className="flex items-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white opacity-80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  AI generuje odpowiedź i feedback...
+                  AI generuje odpowiedź i analizuje Twój prompt...
                 </span>
               ) : "Wyślij do AI i porównaj"}
             </button>
@@ -167,15 +161,29 @@ export default function TaskPage({ params: paramsPromise }) {
               </div>
             </div>
             
-            {/* Section 3: AI Feedback */}
+            {/* Section 3: The PERFECT Learning Loop */}
             <div className="bg-linear-to-br from-amber-50 to-orange-100/50 p-6 md:p-8 rounded-3xl border-2 border-amber-200 shadow-sm mt-12">
+              
+              {/* Step 1: What is the main difference? */}
+              {result.keyDifference && (
+                <div className="mb-6 bg-white p-5 rounded-2xl border-2 border-indigo-200 shadow-sm">
+                  <h4 className="font-bold text-indigo-700 uppercase tracking-wider text-xs mb-2 flex items-center">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Kluczowa różnica
+                  </h4>
+                  <p className="text-slate-800 font-bold leading-relaxed">{result.keyDifference}</p>
+                </div>
+              )}
+
+              {/* Step 2: What should the user fix and WHY? */}
               <h3 className="font-bold text-amber-900 text-xl mb-4 flex items-center">
-                <span className="text-2xl mr-3 bg-white p-2 rounded-xl shadow-sm border border-amber-100">💡</span> AI Feedback
+                <span className="text-2xl mr-3 bg-white p-2 rounded-xl shadow-sm border border-amber-100">💡</span> Twój obszar do poprawy
               </h3>
               <p className="text-amber-900 text-lg leading-relaxed mb-6 bg-white/80 p-5 rounded-2xl border border-amber-200 shadow-sm font-medium">{result.feedback}</p>
               
+              {/* Step 3: Universal Rule */}
               <div className="flex items-start bg-white p-5 rounded-2xl border-2 border-amber-200 shadow-sm">
-                <span className="text-amber-700 font-extrabold mr-3 uppercase tracking-wider text-xs mt-1 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-md">Wskazówka</span>
+                <span className="text-amber-700 font-extrabold mr-3 uppercase tracking-wider text-xs mt-1 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-md shrink-0">Uniwersalna zasada</span>
                 <p className="text-sm font-bold text-amber-900 leading-relaxed">{task.tips}</p>
               </div>
             </div>

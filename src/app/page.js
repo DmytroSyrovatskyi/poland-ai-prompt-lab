@@ -54,15 +54,37 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Global Progress Tracking */}
+        {/* Global Progress Tracking & Reset */}
         <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b-2 border-slate-300 pb-6 gap-4">
           <h2 className="text-2xl font-bold text-slate-800 uppercase tracking-wider">Scenariusze treningowe</h2>
-          <div className="text-sm font-bold text-slate-700 bg-white border-2 border-slate-300 px-6 py-2.5 rounded-full shadow-sm flex items-center">
-            Twój postęp: 
-            <span className="text-indigo-600 font-extrabold text-lg ml-3">
-              {isMounted ? completedTasks.length : 0}
-            </span> 
-            <span className="mx-2 text-slate-400">/</span> {tasks.length}
+          
+          <div className="flex items-center gap-4">
+            {/* Reset Button (visible only if there is progress) */}
+            {isMounted && completedTasks.length > 0 && (
+              <button 
+                onClick={() => {
+                  if(window.confirm('Czy na pewno chcesz zresetować swój postęp?')) {
+                    localStorage.removeItem('completedTasks');
+                    setCompletedTasks([]);
+                  }
+                }}
+                className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-wider"
+              >
+                Zresetuj
+              </button>
+            )}
+
+            {/* Fixed Progress Badge - All numbers same size with tabular-nums */}
+            <div className="text-sm font-bold text-slate-700 bg-white border-2 border-slate-300 px-4 py-2 rounded-full shadow-sm flex items-center gap-3">
+              <span>Twój postęp:</span>
+              <div className="flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 shadow-inner tabular-nums text-sm">
+                <span className="text-indigo-600 font-extrabold">
+                  {isMounted ? completedTasks.length : 0}
+                </span>
+                <span className="text-slate-400 font-medium px-0.5">/</span>
+                <span className="text-slate-600 font-bold">{tasks.length}</span>
+              </div>
+            </div>
           </div>
         </div>
 
