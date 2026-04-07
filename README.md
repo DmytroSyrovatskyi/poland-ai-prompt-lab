@@ -3,32 +3,36 @@
 An interactive web-based training tool designed for Polish NGO staff to practice and improve their AI prompting skills through realistic, day-to-day scenarios. 
 
 ## 🚀 Deployed Application
-**Live Demo:** [Insert Your Vercel Link Here]
+Live Demo: [https://poland-ai-prompt-lab.vercel.app/]
+
+## ✨ Currently Implemented Features
+1. Interactive Dashboard: Task library grouped by 3 difficulty levels (Basics, Intermediate, Advanced).
+2. Task Engine: 6 pre-loaded, realistic NGO scenarios (social media, grant analysis, email drafting, data extraction).
+3. Side-by-Side Comparison: Clear split-view comparing the user's prompt and the expert's prompt, along with their respective AI-generated results.
+4. Pedagogical AI Feedback (The Learning Loop):
+   - Key Difference: AI explains the functional difference between the two prompts in one sentence.
+   - Actionable Feedback: AI provides specific strengths and concrete areas for improvement.
+   - Universal Rule: A static heuristic (Złota zasada) is provided to reinforce the lesson.
+5. Progress Tracking: Local storage-based progress tracking (completed task checkmarks, X/6 counter, and a reset button) requiring no authentication.
+6. Non-Technical UX: Interface tailored for beginners (e.g., using "instrukcja dla AI", prompt formulas, dynamic placeholders, and loading states).
 
 ## 🛠️ Stack Choices & Architecture
+* Frontend: Next.js 16 (App Router) & React, Tailwind CSS 4. Chosen for fast rendering and mobile-first, high-contrast "Card UI" design.
+* Backend / API: Google Gemini API (`gemini-2.5-flash-lite`).
+  * Cost-Efficiency: At ~$0.10 per 1M input tokens, it is highly economical for live workshops (30+ simultaneous users).
+  * Single-Turn Prompting: The system makes a single complex API call to fetch the user's response, the expert's response, the key difference, and the feedback all at once. This prevents `429 Too Many Requests` errors and reduces latency.
 
-* **Framework:** Next.js 16 (App Router) & React. Chosen for fast rendering, robust API route handling, and seamless deployment.
-* **Styling & UX:** Tailwind CSS. The app uses a mobile-first "Card UI" design. Tasks are grouped into logical learning modules (Basics, Intermediate, Advanced) with instruction blocks and high-contrast elements to ensure maximum accessibility for non-technical users.
-* **AI API:** Google Gemini API (`gemini-2.5-flash-lite`). 
-  * *Why this model?* It handles the Polish language exceptionally well and is highly cost-effective. This ensures that when 20–30 workshop participants click "Submit" simultaneously, the API can handle the high throughput efficiently and economically without hitting severe rate limits.
-* **State Management:** Browser `localStorage`. Fulfills the requirement for session progress tracking (visual checkmarks on the dashboard) without the friction of a login/auth system.
+## 📝 How to Add New Tasks
+The task library is completely decoupled from the application logic. To add or modify tasks, simply edit the `src/app/data/tasks.json` file. 
 
-## 🧠 Prompt Engineering Logic
-
-To minimize API costs and reduce the risk of `429 Too Many Requests` errors during live workshops, the application uses a **Single-Turn Prompt Optimization** strategy. Instead of making three separate API calls (one for the user prompt, one for the expert prompt, and one for the feedback), the backend merges them into a single, complex system prompt. This instructs the AI to return all three outputs simultaneously in a clean, parsable JSON format.
-
-## 📝 How to Add New Tasks (Extensibility)
-
-The task library is completely decoupled from the application logic. A non-developer can easily add, edit, or remove tasks by modifying the `src/app/data/tasks.json` file.
-
-**Structure of a Task:**
+**Exact structure of a currently implemented task:**
 ```json
 {
-  "id": "task-7",
-  "level": "Intermediate",
-  "title": "Tytuł zadania",
-  "scenario": "Opis sytuacji dla użytkownika.",
-  "inputText": "Opcjonalny tekst źródłowy. Usuń tę linijkę, jeśli niepotrzebna.",
-  "expertPrompt": "Wzór idealnego promptu.",
-  "tips": "Krótka wskazówka, dlaczego prompt eksperta zadziałał lepiej."
+  "id": "task-1",
+  "level": "Basics",
+  "title": "Post na media społecznościowe",
+  "scenario": "Musisz napisać krótki post w mediach społecznościowych...",
+  "inputText": "Opcjonalny tekst źródłowy (usuń pole, jeśli brak).",
+  "expertPrompt": "Napisz post na Facebooka o biegu...",
+  "tips": "Określenie formatu (Facebook), tonu, precyzyjnych elementów..."
 }
